@@ -11,7 +11,7 @@ TARGET_REGEX = re.compile(
 TARGET_LABEL = '賬單/HKBN 賬單'
 
 
-class Chekcer(base.Checker):
+class Checker(base.Checker):
     """HKBN checker"""
     def __init__(self, creds_filename):
         """Init"""

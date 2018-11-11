@@ -8,7 +8,7 @@ CREDES_FILENAME = os.path.join(
 
 
 def run():
-    checker = hkbn_checker.Chekcer(CREDES_FILENAME)
+    checker = hkbn_checker.Checker(CREDES_FILENAME)
     checker.check()
 
 
