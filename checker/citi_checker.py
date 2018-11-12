@@ -73,17 +73,22 @@ class Checker(base.Checker):
                     date = item.text
                 elif found_date and found_balance:
                     break
-        self._balance = 'citi: balance'
+        self._balance = 'citi: ' + balance
         splitted_date = date.split('/')
         self._date = datetime.datetime(int(splitted_date[2]), int(splitted_date[0]), int(splitted_date[1]))
+
+    def _logout(self):
+        """Log out"""
+        logout_btn = self._driver.find_element_by_id('PortalHeaderMenuRight')
+        logout_btn.click()
 
     def get_date(self):
         """Retrieve the date"""
         return self._date
 
-    # def get_summary(self):
-    #     """Retrieve the summary"""
-    #     return self._balance
+    def get_summary(self):
+        """Retrieve the summary"""
+        return self._balance
 
     def do_check(self):
         """The check logic"""
@@ -91,3 +96,4 @@ class Checker(base.Checker):
         self._login()
         self._enter_card_detail()
         self._get_target()
+        self._logout()
