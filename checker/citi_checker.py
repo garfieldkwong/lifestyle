@@ -15,7 +15,7 @@ class Checker(base.Checker):
         super().__init__(creds_filename)
         self._config = config
         chrome_options = options.Options()
-        # chrome_options.add_argument("--headless")
+        chrome_options.add_argument("--headless")
         self._driver = webdriver.Chrome(chrome_options=chrome_options)
         self._driver.maximize_window()
         self._date = None
@@ -92,8 +92,12 @@ class Checker(base.Checker):
 
     def do_check(self):
         """The check logic"""
-        self._landing()
-        self._login()
-        self._enter_card_detail()
-        self._get_target()
-        self._logout()
+        try:
+            self._landing()
+            self._login()
+            self._enter_card_detail()
+            self._get_target()
+            self._logout()
+        except Exception as exc:
+            self._driver.save_screenshot('screenie.png')
+            raise exc

@@ -1,0 +1,9 @@
+[Unit]
+Description=Timer for Life Style
+ 
+[Timer]
+OnCalendar=*-*-* 16:00:00
+Unit=lifestyle.service
+ 
+[Install]
+WantedBy=multi-user.target

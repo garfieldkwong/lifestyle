@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+import sys
+sys.path.append(
+    '/home/garfieldkwong/work/src/lifestyle'
+)
+
+import multiprocessing
+from script import citi, hkbn
+
+citi_p = multiprocessing.Process(target=citi.run)
+citi_p.start()
+
+hkbn_p = multiprocessing.Process(target=hkbn.run)
+hkbn_p.start()
+
+citi_p.join()
+hkbn_p.join()

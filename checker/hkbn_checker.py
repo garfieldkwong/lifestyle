@@ -5,9 +5,10 @@ import re
 from g_service import gmail
 from . import base
 TARGET_REGEX = re.compile(
-    '.*本期收費項目.*(\$[0-9]+(\.[0-9]*)?).*'
-    '截至.*([0-9]{4}\/[0-9]{2}\/[0-9{2}]).*'
+    '.*本期應繳賬項.*(\$[0-9]+(\.[0-9]*)?).*'
+    '到期繳款日.*([0-9]{4}\/[0-9]{2}\/[0-9]{2}).*'
 )
+
 TARGET_LABEL = '賬單/HKBN 賬單'
 
 

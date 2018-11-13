@@ -1,0 +1,9 @@
+[Unit]
+Description=Life Style Service
+ 
+[Service]
+User=garfieldkwong
+Group=garfieldkwong
+WorkingDirectory=/home/garfieldkwong/work/src/lifestyle/deploy/bin
+Type=oneshot
+ExecStart=/usr/bin/lifestyle
