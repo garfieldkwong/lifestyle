@@ -42,3 +42,6 @@ class Checker(object):
             self._calendar_service.insert_event(
                 summary=summary, start=date, end=date
             )
+            print("Marked reminder on {date} about {summary}".format(
+                date=date, summary=summary
+            ))
