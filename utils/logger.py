@@ -1,6 +1,6 @@
 import logging, logging.handlers
 import os
-FORMAT = '%(asctime)s.%(msecs)d|%(levelname)s| - %(message)s'
+FORMAT = '%(asctime)s.%(msecs)03d|%(levelname)s| - %(message)s'
 DATEFMT = '%Y-%m-%d %H:%M:%S'
 
 
