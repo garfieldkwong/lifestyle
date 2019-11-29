@@ -32,30 +32,32 @@ def run(config=None):
     while True:
         log.info('')
         sleep_duration = 60
+        handled = False
         msg_infos = gmail_service.list_messages(
             query='is:unread', labelIds=cfg_data['gmail_lable_id']
         )
         for msg_info in msg_infos:
-            msg_data = gmail_service.get_message(msg_info['id'])
-            subject = ''
-            for item in msg_data['payload']['headers']:
-                if item['name'] == 'subject':
-                    subject = item['value']
-            matched = subject_regex.match(subject)
-            if matched and \
-               matched.group(1) == cfg_data['cam_target'] and \
-               matched.group(2) == cfg_data['cam_offline_indicator']:
-                device = miio.chuangmi_plug.ChuangmiPlug(
-                    ip=cfg_data['socket_ip'], token=cfg_data['socket_token']
-                )
-                result = device.off()
+            if not handled:
+                msg_data = gmail_service.get_message(msg_info['id'])
+                subject = ''
+                for item in msg_data['payload']['headers']:
+                    if item['name'] == 'subject':
+                        subject = item['value']
+                matched = subject_regex.match(subject)
+                if matched and \
+                   matched.group(1) == cfg_data['cam_target'] and \
+                   matched.group(2) == cfg_data['cam_offline_indicator']:
+                    device = miio.chuangmi_plug.ChuangmiPlug(
+                        ip=cfg_data['socket_ip'], token=cfg_data['socket_token']
+                    )
+                    result = device.off()
 
-                log.info('off %s', result)
+                    log.info('off %s', result)
 
-                time.sleep(1)
-                result = device.on()
-                log.info('on %s', result)
-                sleep_duration = 3600
+                    time.sleep(1)
+                    result = device.on()
+                    log.info('on %s', result)
+                    sleep_duration = 3600
             gmail_service.mark_as_read(msg_info['id'])
         time.sleep(sleep_duration)
 
