@@ -3,7 +3,7 @@ from . import base
 
 class GMail(base.BaseHandler):
     """Gmail handler"""
-    SCOPE = 'https://www.googleapis.com/auth/gmail.modify'
+    SCOPE = 'https://mail.google.com'
     SERVICE_NAME = 'gmail'
     API_VERSION = 'v1'
 
@@ -44,5 +44,13 @@ class GMail(base.BaseHandler):
             body={
                 'removeLabelIds': ['UNREAD']
             }
+        ).execute()
+        return message
+
+    def delete_msg(self, msg_id):
+        """Delete message"""
+        message = self._service.users().messages().delete(
+            userId=self.USER_ID,
+            id=msg_id,
         ).execute()
         return message

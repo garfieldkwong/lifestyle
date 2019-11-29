@@ -8,13 +8,13 @@ def create_logger(log_name):
     """Create logger"""
     logger = logging.getLogger(log_name)
 
-    directory = os.path.join('var', 'log', 'lifestyle')
+    directory = os.path.abspath(os.path.join('/', 'var', 'log', 'lifestyle'))
     if not os.path.exists(directory):
-        os.makedirs(exist_ok=True)
+        os.makedirs(directory, exist_ok=True)
 
     # Create rotate file logger
     file_handler = logging.handlers.RotatingFileHandler(
-        os.path.join(directory),
+        os.path.join(directory, log_name),
         maxBytes=10*1024*1024,
         backupCount=5
     )
