@@ -22,33 +22,12 @@ def load_config(config_path=None):
         return cfg_data
 
 
-async def _check_email_subject(subject, cfg_data):
-    """Check the email subject"""
-    subject_regex = re.compile(cfg_data['subject_regex'])
-    matched = subject_regex.match(subject)
-    if matched and \
-            matched.group(1) == cfg_data['cam_target'] and \
-            matched.group(2) == cfg_data['cam_offline_indicator']:
-        device = miio.chuangmi_plug.ChuangmiPlug(
-            ip=cfg_data['socket_ip'], token=cfg_data['socket_token']
-        )
-        result = await async_helper.async_call(device.off)
-
-        log.info('off %s', result)
-
-        await asyncio.sleep(1)
-
-        result = await async_helper.async_call(device.on)
-        log.info('on %s', result)
-        return True
-    return False
-
-
 class EmailHandler(object):
     """Email handler"""
     def __init__(self, cfg_path):
         super().__init__()
         self._cfg_data = load_config(cfg_path)
+        self._reboot_task = None
 
     async def handler_RCPT(
             self, server, session, envelope, address, rcpt_options
@@ -60,8 +39,41 @@ class EmailHandler(object):
         sub_bytes, encoding = email.header.decode_header(msg['subject'])[0]
         subject = sub_bytes.decode(encoding)
         log.info('Received email with subject: %s', subject)
-        await _check_email_subject(subject, self._cfg_data)
+        asyncio.create_task(self._check_email_subject(subject))
         return '250 Message accepted for delivery'
+
+    async def _check_email_subject(self, subject):
+        """Check the email subject"""
+        subject_regex = re.compile(self._cfg_data['subject_regex'])
+        matched = subject_regex.match(subject)
+        if matched and \
+           matched.group(1) == self._cfg_data['cam_target']:
+            if matched.group(2) == self._cfg_data['cam_offline_indicator']:
+                if self._reboot_task is None:
+                    self._reboot_task = asyncio.create_task(self._reboot_cam())
+                    await self._reboot_task
+                    self._reboot_task = None
+            elif matched.group(2) == self._cfg_data['cam_online_indicator']:
+                if self._reboot_task is not None:
+                    self._reboot_task.cancel()
+                    self._reboot_task = None
+
+    async def _reboot_cam(self):
+        """Reboot the camera"""
+        await asyncio.sleep(30)
+
+        log.info("Try to reboot the cam(%s)", self._cfg_data['socket_ip'])
+        device = miio.chuangmi_plug.ChuangmiPlug(
+            ip=self._cfg_data['socket_ip'], token=self._cfg_data['socket_token']
+        )
+        result = await async_helper.async_call(device.off)
+
+        log.info('off %s', result)
+
+        await asyncio.sleep(1)
+
+        result = await async_helper.async_call(device.on)
+        log.info('on %s', result)
 
 
 if __name__ == '__main__':
