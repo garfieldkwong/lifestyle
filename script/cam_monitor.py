@@ -39,7 +39,9 @@ class EmailHandler(object):
         sub_bytes, encoding = email.header.decode_header(msg['subject'])[0]
         subject = sub_bytes.decode(encoding)
         log.info('Received email with subject: %s', subject)
-        asyncio.create_task(self._check_email_subject(subject))
+        asyncio.get_event_loop().create_task(
+            self._check_email_subject(subject)
+        )
         return '250 Message accepted for delivery'
 
     async def _check_email_subject(self, subject):
@@ -50,7 +52,9 @@ class EmailHandler(object):
            matched.group(1) == self._cfg_data['cam_target']:
             if matched.group(2) == self._cfg_data['cam_offline_indicator']:
                 if self._reboot_task is None:
-                    self._reboot_task = asyncio.create_task(self._reboot_cam())
+                    self._reboot_task = asyncio.get_event_loop().create_task(
+                        self._reboot_cam()
+                    )
                     await self._reboot_task
                     self._reboot_task = None
             elif matched.group(2) == self._cfg_data['cam_online_indicator']:
