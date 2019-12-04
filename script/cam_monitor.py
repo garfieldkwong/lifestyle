@@ -30,14 +30,25 @@ class EmailHandler(object):
         self._reboot_task = None
 
     async def handle_DATA(self, server, session, envelope):
-        msg = email.message_from_bytes(envelope.content)
-        sub_bytes, encoding = email.header.decode_header(msg['subject'])[0]
-        subject = sub_bytes.decode(encoding)
-        log.info('Received email with subject: %s', subject)
-        asyncio.get_event_loop().create_task(
-            self._check_email_subject(subject)
-        )
+        fn_key = '_' + envelope.mail_from.split('@')[0].lower()
+        log.info('Received mail from: %s', envelope.mail_from)
+        if hasattr(self, fn_key):
+            fn = getattr(self, fn_key)
+        else:
+            fn = None
+        if fn:
+            asyncio.get_event_loop().create_task(
+                fn(envelope)
+            )
         return '250 Message accepted for delivery'
+
+    async def _dsm(self, envelope):
+        msg = email.message_from_bytes(envelope.content)
+        subject, encoding = email.header.decode_header(msg['subject'])[0]
+        if encoding:
+            subject = subject.decode(encoding)
+        log.info('Received email with subject: %s', subject)
+        await self._check_email_subject(subject)
 
     async def _check_email_subject(self, subject):
         """Check the email subject"""
