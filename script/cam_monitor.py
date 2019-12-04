@@ -29,11 +29,6 @@ class EmailHandler(object):
         self._cfg_data = load_config(cfg_path)
         self._reboot_task = None
 
-    async def handler_RCPT(
-            self, server, session, envelope, address, rcpt_options
-    ):
-        return '250 OK'
-
     async def handle_DATA(self, server, session, envelope):
         msg = email.message_from_bytes(envelope.content)
         sub_bytes, encoding = email.header.decode_header(msg['subject'])[0]
