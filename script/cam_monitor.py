@@ -70,12 +70,17 @@ class EmailHandler(object):
 
     async def _reboot_cam(self):
         """Reboot the camera"""
-        await asyncio.sleep(30)
-
-        log.info("Try to reboot the cam(%s)", self._cfg_data['socket_ip'])
         device = miio.chuangmi_plug.ChuangmiPlug(
             ip=self._cfg_data['socket_ip'], token=self._cfg_data['socket_token']
         )
+        current_status = await async_helper.async_call(device.status)
+        if not current_status.power:
+            log.info("Socket already manually turned off. Will not reboot.")
+            return
+
+        await asyncio.sleep(30)
+        log.info("Try to reboot the cam(%s)", self._cfg_data['socket_ip'])
+
         result = await async_helper.async_call(device.off)
 
         log.info('off %s', result)
