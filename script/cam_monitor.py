@@ -58,6 +58,7 @@ class EmailHandler(object):
            matched.group(1) == self._cfg_data['cam_target']:
             if matched.group(2) == self._cfg_data['cam_offline_indicator']:
                 if self._reboot_task is None:
+                    log.info("Scheduled reboot task")
                     self._reboot_task = asyncio.get_event_loop().create_task(
                         self._reboot_cam()
                     )
@@ -65,6 +66,7 @@ class EmailHandler(object):
                     self._reboot_task = None
             elif matched.group(2) == self._cfg_data['cam_online_indicator']:
                 if self._reboot_task is not None:
+                    log.info("Camera online again, cancel the reboot task")
                     self._reboot_task.cancel()
                     self._reboot_task = None
 
@@ -79,6 +81,9 @@ class EmailHandler(object):
             return
 
         await asyncio.sleep(30)
+        # Already started reboot process, we should ensure the whole process
+        # is done.
+        self._reboot_task = None
         log.info("Try to reboot the cam(%s)", self._cfg_data['socket_ip'])
 
         result = await async_helper.async_call(device.off)
